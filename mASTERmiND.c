@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include<conio.h>
 #include<string.h>
+#include <ctype.h>
 
-#define Codice5
 
  int main (){
     printf(
@@ -14,7 +14,7 @@
             "generata dal sistema, ne dovra' indovinare il carattere(colore) e"
             "l'ordine corretto di ogni lettera.\n"
             "Si potra' scegliere la difficolta' del gioco scegliendo la"
-            "lunghezza del codice segreto partendo da 1 fino ad un massimo di "
+            "lunghezza del codice segreto partendo da 3 fino ad un massimo di "
             "5 caratteri da indovinare.\nIl giocatore avra' 9 tentativi per "
             "scoprire la sequenza segreta prima di perdere la partita.\n"
             "Ad ogni tentativo ci sara' un log che permettera'  di capire se c'e'"
@@ -41,57 +41,74 @@
 	char SecretString[5]; //QUESTO ARRAY INVECE SALVERA' LA STRINGA RANDOM GENERATA
 	srand(time(NULL)); //Funzione che permette il funzionamento della funzione random 
 
-	printf("Scegli di giocare con un codice da 1 a 5 cifre\n");
+	printf("Scegli di giocare con un codice da 3 a 5 cifre\n");
 	scanf("%d",&CodeLenght);
 	
+	//Controllo input corretto
+	if (CodeLenght < 3 || CodeLenght > 5) {
+        printf("Valore inserito non valido!");
+        exit(1);
+    }
     
 	printf("\nLa sequenza segreta e'\n\n");
-
 		for(i=0; i<CodeLenght; i++){  
         SecretString[i]=SecretStringColours[rand()%(sizeof SecretStringColours)];
-        }
+    }
     printf("\n%s",&SecretString);  //stampo la sequenza random(MI SERVE IN FASE DI DEBUG)
-    
 	printf("\nINSERISCI LA TUA IPOTESI---*RICORDA DI INSERIRE IN MAIUSCOLO*\n\n");
     
-	
+		
    do      //Creo struttura loop con do per permettere al giocatore di avere N tentativi per indovinare il codice segreto prima di terminare il gioco.
 	{ 
-	printf("Tentativo N %d\n",N);
-	char DigitatedSequence[sizeof CodeLenght]; 
-    scanf("%s", DigitatedSequence);
-    PioloNero=0; //ASSEGNO ZERO ALLe VARIABILI ALLA FINE DI OGNI LOOP PER GARANTIRE IL CORRETTO FUNZIONAMENTO DELL'ALGORITMO
-	PioloBianco=0;
-	N++;//VAriabile contatore per numero tentativi
-    
-    for(i=0; i<CodeLenght; i++){
-    P_Nero[i]=0;
-	P_Bianco[i]=0;	
+	
+	for(i=0; i<CodeLenght; i++){
+       
+	   P_Nero[i]=0;
+	   P_Bianco[i]=0;	
 	}
+	
+	printf("Tentativo N %d\n",N);
+	char DigitatedSequence[sizeof CodeLenght]; //sizeof CodeLenght
+    scanf("%s", DigitatedSequence);
+    
+	//Controllo maiuscole
+	/*if (isupper(SecretStringColours[i])){
+	   printf("CODICE OK");
+    }
+	else if(islower(SecretStringColours[i])){
+	    printf("Devi inserire un codice in maiuscolo!");
+		exit(1);
+	}*/
+        
+    PioloNero=0; //Azzero le variabili per non sovrascrivere
+	PioloBianco=0; //ad ogni tentativo rendendo inefficiente l'algoritmo
+	
+	N++; //Incremento numero tentativi ad ogni giro
+	
+	 //Controllo input corretto
+        if (strlen(DigitatedSequence) != CodeLenght) {
+            printf("Lunghezza sequenza non valida!");
+            exit(1);
+        }
 		
-     //for(i = 0; i < CodeLenght; i++) {
-       // printf("\nGiro : %d\n",i);
-                                             /*Il doppio ciclo for è per permettere il confronto completo tra le due stringhe SecretString e DigitatedSequence anallizzando elemento per elemento.
-                                             In particolare il confronto avviene partendo dal carattere nella prima cella di SecretString che viene confrontato con i caratteri di tutte le celle
-                                             di DigitatedSequence, poi passando all'elemento della seconda cella di Secret con tutti gli elementi di DIgitated e così via.*/
        for(i=0; i<CodeLenght; i++) {
          if(DigitatedSequence[i] == SecretString[i]) //&& i==j) //FACCIO IL CONFRONTO
             {
-                //printf("%c e %c \n", SecretString[i], DigitatedSequence[j]);
-		        PioloNero +=1;
+                printf("%c e %c \n", SecretString[i], DigitatedSequence[i]);
+		        PioloNero ++;
 				//printf("\PioloBianco = %d, PioloNero = %d\n",PioloBianco,PioloNero);
-				//break; break termina il loop -> occhio!
 				 P_Nero[i]=1;
-	             P_Bianco[i]=1;	
+	             P_Bianco[i]=1;	// E' usata per indicare se e' stato indoVinata la lettera ma non la posizione
 			}
 		}
 		
-		for(i=0; i<CodeLenght; i++){
-			if(P_Nero[i]==0){
+		for(i=0; i<CodeLenght; i++){   //P_Bianco[i] se e' 0 indica che non si sono verificate le condizioni nel ciclo precedente cioe' caratteri uguali nella stessa posizione ( CodiceSegreto [i] e CodiceDigitato[i]) La i indica un parametro di posizione.
+			if(P_Bianco[i]==0){ //Se abbiamo indovinato il numero ma non la posizione
 				for(j=0; j<CodeLenght; j++){
-				  if(DigitatedSequence[i] == SecretString[i] && P_Nero[i]==0){
-				    PioloBianco +=1;
-				    P_Nero[j]==1;
+				  if(DigitatedSequence[i] == SecretString[j] && P_Bianco[j]==0){
+				    printf("%c e %c \n", SecretString[i], DigitatedSequence[j]);
+					PioloBianco++;
+				    P_Bianco[j]==1; // Cambiando questo stravolgo ocmpletamente il corretto funzionamento dei bianchi.
 				    printf("%c,",P_Bianco[j]);
 					break;
 					}
@@ -101,7 +118,7 @@
 		}
    //	} 
 	
-    printf("\PioloBianco = %d, PioloNero = %d\n",PioloBianco,PioloNero);
+    printf("\nPioloBianco = %d, PioloNero = %d\n",PioloBianco,PioloNero);
  
     if(PioloNero == CodeLenght){
 	                             printf("\nHai indovinato il codice segreto :)\n");
@@ -124,5 +141,4 @@ return 0;
 
 	
 
-/*TUTTO FUNZIONA COME DEVE, UNICA COSA RIMANENTE E' RISOLVERE IL PROBLEMA DELLE DOPPIE(AVVIENE UNA SOVRACONTA DAI PIOLI BIANCHI) E QUESTO NON PERMETTE IL NORMALE FUNZIONAMENTO.
-L'IDEA ERA CREARE UNA FUNZIONE CHE RIESCA A RICONOSCERE CHE SE IL PIOLO BIANCO E' GIA STATO INCREMENTATO E SI PRESENTA UNA DOPPIA QUESTO RIMANE COSI.*/
+//*TUTTO FUNZIONA COME DEVE, resta da sistemare il controllo maiuscole con true/false , rinominare le variabili e sitemazioni varie.
